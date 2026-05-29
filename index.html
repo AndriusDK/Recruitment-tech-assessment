@@ -73,6 +73,23 @@
         <button class="btn btn-outline" id="btn-restart">Start Over</button>
       </div>
     </section>
+
+    <!-- Admin Screen -->
+    <section id="screen-admin" class="screen">
+      <header class="admin-header">
+        <div class="header-inner">
+          <span class="header-logo">iPaper</span>
+          <span class="admin-title">Admin — Candidate Results</span>
+          <button class="btn btn-danger-sm" id="btn-clear-all">Clear All Data</button>
+        </div>
+      </header>
+      <main class="admin-main">
+        <div id="admin-empty" class="admin-empty" style="display:none">
+          <p>No assessments have been completed yet.</p>
+        </div>
+        <div id="admin-scoreboard"></div>
+      </main>
+    </section>
   </div>
 
   <script src="questions.js"></script>

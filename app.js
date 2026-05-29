@@ -1,10 +1,40 @@
 (function () {
   "use strict";
 
+  const STORAGE_KEY = "ipaper_assessment_results";
+
+  // ── localStorage helpers ─────────────────────────────────────────────────
+  function loadResults() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+    catch { return []; }
+  }
+  function saveResult(entry) {
+    const all = loadResults();
+    all.push(entry);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  }
+  function clearResults() {
+    localStorage.removeItem(STORAGE_KEY);
+  }
+
+  // ── Admin mode ───────────────────────────────────────────────────────────
+  if (location.search.includes("admin")) {
+    document.getElementById("screen-start").classList.remove("active");
+    document.getElementById("screen-admin").classList.add("active");
+    renderAdmin();
+    document.getElementById("btn-clear-all").addEventListener("click", () => {
+      if (confirm("Delete ALL candidate results? This cannot be undone.")) {
+        clearResults();
+        renderAdmin();
+      }
+    });
+    return; // stop rest of app init
+  }
+
   // ── State ────────────────────────────────────────────────────────────────
   let candidateName = "";
   let currentIndex = 0;
-  let answers = []; // { questionId, correct }
+  let answers = []; // { questionId, correct, selectedText }
 
   // ── Element refs ─────────────────────────────────────────────────────────
   const screenStart = document.getElementById("screen-start");
@@ -132,7 +162,8 @@
     });
 
     // Store answer
-    answers.push({ questionId: q.id, section: q.section, correct });
+    const selectedText = selected.querySelector(".opt-text").textContent;
+    answers.push({ questionId: q.id, section: q.section, correct, selectedText });
 
     // Show explanation hint
     navHint.textContent = q.explanation;
@@ -204,6 +235,22 @@
     verdictEl.textContent = verdictText;
     verdictEl.className = "verdict " + verdictClass;
 
+    // Persist to localStorage
+    saveResult({
+      id: Date.now(),
+      name: candidateName,
+      date: new Date().toISOString(),
+      score: pct,
+      correct,
+      total,
+      answers: answers.map((a) => ({
+        questionId: a.questionId,
+        section: a.section,
+        correct: a.correct,
+        selectedText: a.selectedText,
+      })),
+    });
+
     showScreen(screenResults);
   }
 
@@ -218,4 +265,75 @@
     showScreen(screenStart);
     inputName.focus();
   });
+
+  // ── Admin renderer (called only in admin mode, defined here for shared scope) ──
+  function renderAdmin() {} // stub — real one below outside IIFE guard
 })();
+
+// ── Admin renderer ────────────────────────────────────────────────────────
+function renderAdmin() {
+  const STORAGE_KEY = "ipaper_assessment_results";
+  const container = document.getElementById("admin-scoreboard");
+  const empty = document.getElementById("admin-empty");
+  let results;
+  try { results = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { results = []; }
+
+  if (!results.length) {
+    container.innerHTML = "";
+    empty.style.display = "block";
+    return;
+  }
+  empty.style.display = "none";
+
+  // Sort newest first
+  results.sort((a, b) => b.id - a.id);
+
+  container.innerHTML = results.map((r) => {
+    const date = new Date(r.date).toLocaleString();
+    const scoreClass = r.score >= 80 ? "score-pass" : r.score >= 50 ? "score-mid" : "score-fail";
+
+    const sectionKeys = Object.keys(SECTIONS);
+    const sectionRows = sectionKeys.map((sec) => {
+      const secA = r.answers.filter((a) => a.section === sec);
+      const secCorrect = secA.filter((a) => a.correct).length;
+      const secPct = secA.length ? Math.round((secCorrect / secA.length) * 100) : 0;
+      return `<span class="admin-sec-pill sec-${sec.toLowerCase()}">${SECTIONS[sec]}: ${secCorrect}/${secA.length}</span>`;
+    }).join("");
+
+    const answerRows = r.answers.map((a) => {
+      const q = QUESTIONS.find((q) => q.id === a.questionId);
+      if (!q) return "";
+      const correctOpt = q.options.find((o) => o.correct);
+      return `<tr class="${a.correct ? "ans-correct" : "ans-wrong"}">
+        <td class="ans-section"><span class="section-badge section-${a.section.toLowerCase()}">${SECTIONS[a.section]}</span></td>
+        <td class="ans-q">${q.text}</td>
+        <td class="ans-selected">${a.selectedText}</td>
+        <td class="ans-mark">${a.correct ? "✓" : "✗"}</td>
+        ${!a.correct ? `<td class="ans-correct-val">Correct: ${correctOpt ? correctOpt.text : "—"}</td>` : "<td></td>"}
+      </tr>`;
+    }).join("");
+
+    return `<div class="admin-card">
+      <div class="admin-card-header">
+        <div class="admin-name">${escHtml(r.name)}</div>
+        <div class="admin-meta">${date}</div>
+        <div class="admin-score ${scoreClass}">${r.score}% &nbsp;<small>${r.correct}/${r.total}</small></div>
+      </div>
+      <div class="admin-sections">${sectionRows}</div>
+      <details class="admin-answers">
+        <summary>View all answers</summary>
+        <div class="table-wrap">
+          <table class="ans-table">
+            <thead><tr><th>Section</th><th>Question</th><th>Selected Answer</th><th></th><th></th></tr></thead>
+            <tbody>${answerRows}</tbody>
+          </table>
+        </div>
+      </details>
+    </div>`;
+  }).join("");
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
