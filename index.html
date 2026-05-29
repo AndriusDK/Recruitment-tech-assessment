@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iPaper Support Tech Assessment</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Start Screen -->
+    <section id="screen-start" class="screen active">
+      <div class="card centered">
+        <div class="logo">iPaper</div>
+        <h1>Support Tech Assessment</h1>
+        <p class="subtitle">This assessment covers JavaScript fundamentals, iFrame troubleshooting, and general support scenarios relevant to the iPaper platform.</p>
+        <div class="field">
+          <label for="candidate-name">Your full name</label>
+          <input type="text" id="candidate-name" placeholder="e.g. Jane Doe" autocomplete="name" />
+          <span class="field-error" id="name-error"></span>
+        </div>
+        <button class="btn btn-primary" id="btn-start">Start Assessment</button>
+      </div>
+    </section>
+
+    <!-- Test Container -->
+    <section id="screen-test" class="screen">
+      <header class="test-header">
+        <div class="header-inner">
+          <span class="header-logo">iPaper</span>
+          <div class="progress-wrap">
+            <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+            <span class="progress-label" id="progress-label">Question 1 of 15</span>
+          </div>
+          <span class="candidate-badge" id="header-name"></span>
+        </div>
+      </header>
+
+      <main class="test-main">
+        <div class="section-badge" id="section-badge"></div>
+        <div class="question-card" id="question-card">
+          <h2 class="question-text" id="question-text"></h2>
+          <div class="options" id="options-container"></div>
+          <div class="code-block-wrap" id="code-block-wrap" style="display:none">
+            <pre><code id="code-block"></code></pre>
+          </div>
+        </div>
+        <div class="test-nav">
+          <span class="nav-hint" id="nav-hint"></span>
+          <button class="btn btn-primary" id="btn-next" disabled>Next</button>
+        </div>
+      </main>
+    </section>
+
+    <!-- Results Screen -->
+    <section id="screen-results" class="screen">
+      <div class="card centered results-card">
+        <div class="logo">iPaper</div>
+        <h1>Assessment Complete</h1>
+        <p class="results-name" id="results-name"></p>
+        <div class="score-ring-wrap">
+          <svg class="score-ring" viewBox="0 0 120 120">
+            <circle class="ring-bg" cx="60" cy="60" r="52"/>
+            <circle class="ring-fill" id="ring-fill" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+          </svg>
+          <div class="score-center">
+            <span class="score-pct" id="score-pct">0%</span>
+            <span class="score-sub" id="score-sub"></span>
+          </div>
+        </div>
+        <div class="section-scores" id="section-scores"></div>
+        <div class="verdict" id="verdict"></div>
+        <button class="btn btn-outline" id="btn-restart">Start Over</button>
+      </div>
+    </section>
+  </div>
+
+  <script src="questions.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
