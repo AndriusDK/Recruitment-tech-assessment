@@ -116,14 +116,14 @@ btn.addEventListner('click', function() {
 
   {
     id: 8, type: "mcq", section: "IFRAME",
-    text: "A WordPress customer says their embedded iPaper flipbook is completely invisible on their page, even though the URL is correct. What is the most likely cause?",
+    text: "A customer embeds an iPaper flipbook using an iframe but reports it looks tiny on their page with lots of whitespace around it. What is the simplest fix?",
     options: [
-      { text: "WordPress only supports HTTPS iframes.",                                                                    correct: false },
-      { text: "WordPress's editor (especially Gutenberg) strips raw `<iframe>` HTML — they need to use a Custom HTML block or allow iframes via a plugin.", correct: true  },
-      { text: "The iframe width must be set in pixels, not percent.",                                                     correct: false },
-      { text: "WordPress does not support iframes at all.",                                                               correct: false },
+      { text: "Set `scrolling=\"yes\"` on the iframe.",                                              correct: false },
+      { text: "Set `width=\"100%\"` and `height=\"100%\"` directly on the iframe element.",          correct: false },
+      { text: "Set `width=\"100%\"` on the iframe and increase the `height` value to better fill the space.", correct: false },
+      { text: "Set a `max-width` or fixed size on the wrapper `<div>` containing the iframe and experiment until it fits the layout.", correct: true  },
     ],
-    explanation: "WordPress sanitises user-submitted HTML and removes `<iframe>` tags by default for security. The customer needs to paste the embed code into a 'Custom HTML' block in the Gutenberg editor.",
+    explanation: "Whitespace around the flipbook usually means the containing element is wider than the flipbook renders at. iPaper's docs recommend setting a `max-width` or explicit size on the outer wrapper div rather than resizing the iframe itself.",
   },
 
   // ── Fix #3 ──────────────────────────────────────────────
