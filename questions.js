@@ -1,258 +1,241 @@
+// Question types: 'mcq' | 'fix'
+// fix questions have: brokenCode, lang, validate(code) -> bool, fixHint
+
 const SECTIONS = {
-  JS: "JavaScript",
+  JS:     "JavaScript",
   IFRAME: "iFrame & Embedding",
-  SUPPORT: "Support Troubleshooting",
+  IPAPER: "iPaper Platform",
 };
 
 const QUESTIONS = [
-  // ─── JavaScript (5 questions) ────────────────────────────────────────────
+
+  // ═══════════════════════════════════════════════════════
+  //  JAVASCRIPT  (3 MCQ + 2 fix = 5)
+  // ═══════════════════════════════════════════════════════
+
   {
-    id: 1,
-    section: "JS",
-    text: "What will the following code log to the console?",
+    id: 1, type: "mcq", section: "JS",
+    text: "What does the following code log to the console?",
     code: `console.log(typeof null);`,
+    lang: "js",
     options: [
-      { text: '"null"', correct: false },
-      { text: '"object"', correct: true },
+      { text: '"null"',      correct: false },
+      { text: '"object"',    correct: true  },
       { text: '"undefined"', correct: false },
-      { text: '"string"', correct: false },
+      { text: '"boolean"',   correct: false },
     ],
-    explanation: '`typeof null` returns "object" — a long-standing quirk in JavaScript.',
+    explanation: '`typeof null` returns "object" — a well-known quirk in JavaScript that has existed since its first version.',
   },
+
   {
-    id: 2,
-    section: "JS",
-    text: "A customer's page runs this snippet. What does `result` equal?",
-    code: `const arr = [1, 2, 3, 4, 5];
-const result = arr.filter(n => n % 2 === 0).map(n => n * 10);`,
+    id: 2, type: "mcq", section: "JS",
+    text: "Which of the following correctly explains the difference between `==` and `===`?",
     options: [
-      { text: "[2, 4]", correct: false },
-      { text: "[20, 40]", correct: true },
-      { text: "[10, 20, 30, 40, 50]", correct: false },
-      { text: "[1, 3, 5]", correct: false },
+      { text: "`==` checks value and type; `===` checks value only.",                             correct: false },
+      { text: "`==` performs type coercion before comparing; `===` requires both value and type to match.", correct: true  },
+      { text: "They are identical — `===` is just an alias.",                                      correct: false },
+      { text: "`===` can only compare strings; `==` compares all types.",                          correct: false },
     ],
-    explanation: "filter keeps even numbers (2, 4), then map multiplies each by 10 → [20, 40].",
+    explanation: "Strict equality (`===`) never coerces types. `5 === '5'` is false, but `5 == '5'` is true because `==` converts the string to a number first.",
   },
+
   {
-    id: 3,
-    section: "JS",
-    text: "Which of the following correctly describes the difference between `==` and `===` in JavaScript?",
-    options: [
-      { text: "They are identical; `===` is just an alias for `==`.", correct: false },
-      { text: "`==` checks value only (with type coercion); `===` checks value AND type.", correct: true },
-      { text: "`===` performs type coercion; `==` does not.", correct: false },
-      { text: "`==` can only compare numbers; `===` compares all types.", correct: false },
-    ],
-    explanation: "`===` (strict equality) does not coerce types, while `==` (loose equality) does.",
-  },
-  {
-    id: 4,
-    section: "JS",
-    text: "What is the output of the following code?",
-    code: `let x = 10;
-(function() {
-  console.log(x);
-  let x = 20;
-})();`,
-    options: [
-      { text: "10", correct: false },
-      { text: "20", correct: false },
-      { text: "undefined", correct: false },
-      { text: "ReferenceError", correct: true },
-    ],
-    explanation:
-      "`let` is hoisted but not initialised (temporal dead zone). Accessing `x` before its declaration inside the IIFE throws a ReferenceError.",
-  },
-  {
-    id: 5,
-    section: "JS",
-    text: "A customer wants to listen for a message from an embedded iPaper publication. Which event should they attach a listener to?",
-    code: `window.addEventListener('_____', function(event) {
+    id: 3, type: "mcq", section: "JS",
+    text: "A customer wants to receive messages sent from an embedded iPaper flipbook. Which window event should they listen to?",
+    code: `window.addEventListener('?', function(event) {
   console.log(event.data);
 });`,
+    lang: "js",
     options: [
-      { text: '"load"', correct: false },
-      { text: '"message"', correct: true },
+      { text: '"load"',        correct: false },
+      { text: '"message"',     correct: true  },
       { text: '"postMessage"', correct: false },
-      { text: '"iframe"', correct: false },
+      { text: '"iframe"',      correct: false },
     ],
-    explanation:
-      'Cross-origin communication via `postMessage` is received through the "message" event on the `window` object.',
+    explanation: 'Cross-origin communication uses `postMessage()` on the sender side and the `"message"` event on the receiver\'s `window` object.',
   },
 
-  // ─── iFrame & Embedding (5 questions) ────────────────────────────────────
+  // ── Fix #1 ──────────────────────────────────────────────
   {
-    id: 6,
-    section: "IFRAME",
-    text: "A customer reports their iPaper publication iframe shows a blank white page. The browser console shows: `Refused to display … in a frame because it set 'X-Frame-Options' to 'SAMEORIGIN'`. What is the most likely cause?",
-    options: [
-      { text: "The publication URL is incorrect.", correct: false },
-      {
-        text: "The customer's own website has an X-Frame-Options header that blocks framing.",
-        correct: false,
-      },
-      {
-        text: "The resource being framed sends X-Frame-Options: SAMEORIGIN, preventing cross-origin embedding.",
-        correct: true,
-      },
-      { text: "The iframe src must use HTTP, not HTTPS.", correct: false },
-    ],
-    explanation:
-      "X-Frame-Options: SAMEORIGIN on the framed resource means it will only load if the parent page shares the same origin.",
-  },
-  {
-    id: 7,
-    section: "IFRAME",
-    text: "Which HTML attribute should a customer add to an iframe to allow it to use the Fullscreen API and autoplay audio?",
-    options: [
-      { text: "`scrolling=\"no\"`", correct: false },
-      { text: "`sandbox=\"allow-scripts allow-same-origin\"`", correct: false },
-      { text: "`allow=\"fullscreen; autoplay\"`", correct: true },
-      { text: "`permissions=\"fullscreen autoplay\"`", correct: false },
-    ],
-    explanation:
-      'The `allow` attribute on iframes controls Permissions Policy features like fullscreen and autoplay.',
-  },
-  {
-    id: 8,
-    section: "IFRAME",
-    text: "A customer embeds an iPaper publication with the snippet below but reports the iframe height never adjusts to fit the content. What is the most appropriate fix?",
-    code: `<iframe src="https://viewer.ipaper.io/demo/pub/"
-        width="100%" height="600px" frameborder="0">
-</iframe>`,
-    options: [
-      { text: "Change `height` to `100%`.", correct: false },
-      { text: "Add `scrolling=\"yes\"` to the iframe.", correct: false },
-      {
-        text: "Use the iPaper postMessage API to receive height-change events and update the iframe height dynamically.",
-        correct: true,
-      },
-      { text: "Remove the `width` attribute.", correct: false },
-    ],
-    explanation:
-      "Because iframes are cross-origin, the parent page cannot read the content height directly. The iPaper postMessage API broadcasts size events that the parent page can use to resize the iframe.",
-  },
-  {
-    id: 9,
-    section: "IFRAME",
-    text: "A customer pastes the following embed code on their WordPress site but sees nothing rendered. They confirm the URL is valid. What should you check first?",
-    code: `<iframe src="https://viewer.ipaper.io/customer/pub/"
-        width="800" height="500">
-</iframe>`,
-    options: [
-      { text: "Whether the iframe uses HTTP instead of HTTPS.", correct: false },
-      {
-        text: "Whether the WordPress editor stripped or escaped the iframe tag (many themes/plugins block raw HTML iframes).",
-        correct: true,
-      },
-      { text: "Whether the width is set in pixels instead of percent.", correct: false },
-      { text: "Whether the customer is using Chrome.", correct: false },
-    ],
-    explanation:
-      "WordPress (especially the block/Gutenberg editor) and many security plugins strip raw iframe HTML by default. The customer likely needs to use a custom HTML block or a trusted iframe plugin.",
-  },
-  {
-    id: 10,
-    section: "IFRAME",
-    text: "What does the browser's Same-Origin Policy prevent in the context of iframes?",
-    options: [
-      { text: "It prevents iframes from being styled with CSS.", correct: false },
-      {
-        text: "It prevents JavaScript in a parent page from reading or manipulating the DOM of a cross-origin iframe.",
-        correct: true,
-      },
-      { text: "It prevents iframes from loading HTTPS resources.", correct: false },
-      { text: "It prevents iframes from being wider than the viewport.", correct: false },
-    ],
-    explanation:
-      "The Same-Origin Policy blocks DOM access across origins, which is why postMessage is used for safe cross-origin communication.",
+    id: 4, type: "fix", section: "JS",
+    text: "This function is supposed to check if a value is exactly the number 42 — but it's too loose. Fix the comparison so it also checks the type.",
+    lang: "js",
+    brokenCode: `function isFortyTwo(val) {
+  if (val == 42) {
+    return true;
+  }
+  return false;
+}`,
+    validate: (code) => code.includes("===") && !code.replace(/===/, "").includes("=="),
+    fixHint: "Hint: loose equality (`==`) allows type coercion. There is a stricter alternative.",
+    explanation: "Using `===` (strict equality) ensures `isFortyTwo('42')` returns false, because the string '42' is not the same type as the number 42.",
   },
 
-  // ─── Support Troubleshooting (5 questions) ───────────────────────────────
+  // ── Fix #2 ──────────────────────────────────────────────
   {
-    id: 11,
-    section: "SUPPORT",
-    text: "A customer emails: \"My publication looks fine on desktop but on mobile the text is tiny and users have to pinch-zoom.\" What is the first thing you would check?",
-    options: [
-      { text: "Whether the publication PDF uses embedded fonts.", correct: false },
-      {
-        text: "Whether the customer's page includes a proper viewport meta tag.",
-        correct: true,
-      },
-      { text: "Whether the customer is using an Android device.", correct: false },
-      { text: "Whether the publication file size exceeds 50 MB.", correct: false },
-    ],
-    explanation:
-      'A missing or incorrect `<meta name="viewport" content="width=device-width, initial-scale=1">` is the most common reason mobile sites appear zoomed out.',
+    id: 5, type: "fix", section: "JS",
+    text: "This code should log 'Button clicked!' when the button is pressed, but nothing happens. There's a typo — find and fix it.",
+    lang: "js",
+    brokenCode: `const btn = document.querySelector('#submitBtn');
+
+btn.addEventListner('click', function() {
+  console.log('Button clicked!');
+});`,
+    validate: (code) => code.includes("addEventListener") && !code.includes("addEventListner"),
+    fixHint: "Hint: look very carefully at the method name on line 3.",
+    explanation: '`addEventListner` is a typo — the correct method is `addEventListener`. JavaScript method names are case-sensitive and must be spelled exactly right.',
   },
+
+  // ═══════════════════════════════════════════════════════
+  //  IFRAME & EMBEDDING  (3 MCQ + 2 fix = 5)
+  // ═══════════════════════════════════════════════════════
+
   {
-    id: 12,
-    section: "SUPPORT",
-    text: "A customer says: \"Our analytics show zero page-views in iPaper even though we can see traffic in Google Analytics.\" Which of the following is the most likely cause?",
+    id: 6, type: "mcq", section: "IFRAME",
+    text: "A customer's browser console shows: `Refused to display in a frame because it set 'X-Frame-Options' to 'SAMEORIGIN'`. What does this mean?",
     options: [
-      {
-        text: "Their Google Analytics tracking ID is wrong.",
-        correct: false,
-      },
-      {
-        text: "A browser content-blocker or ad-blocker is blocking the iPaper analytics script on the viewer.",
-        correct: false,
-      },
-      {
-        text: "The iPaper statistics tracker is not enabled or the publication is not published correctly in iPaper.",
-        correct: true,
-      },
-      {
-        text: "The customer's domain is not whitelisted in iPaper.",
-        correct: false,
-      },
+      { text: "The iframe src URL has a typo.",                                                                            correct: false },
+      { text: "The resource being framed only allows itself to be embedded by pages on the same origin.",                  correct: true  },
+      { text: "The customer's own page has blocked all iframes.",                                                          correct: false },
+      { text: "The iframe needs an HTTPS URL.",                                                                            correct: false },
     ],
-    explanation:
-      "iPaper has its own internal statistics separate from Google Analytics. Zero page-views in iPaper while GA shows traffic suggests the iPaper stats feature is not configured or the publication isn't live.",
+    explanation: "X-Frame-Options: SAMEORIGIN on the embedded resource means it will only load inside an iframe if the parent page shares the same domain and protocol.",
   },
+
   {
-    id: 13,
-    section: "SUPPORT",
-    text: "When investigating a bug report, which of the following is the best first step?",
+    id: 7, type: "mcq", section: "IFRAME",
+    text: "According to iPaper's documentation, what happens if you resize the flipbook's container? Which element should you resize?",
     options: [
-      { text: "Escalate immediately to the development team.", correct: false },
-      { text: "Ask the customer to clear their cache and try again.", correct: false },
-      {
-        text: "Reproduce the issue in a controlled environment using the same browser, OS, and steps the customer described.",
-        correct: true,
-      },
-      { text: "Close the ticket and wait for more reports.", correct: false },
+      { text: "Resize the `<iframe>` element directly.",                     correct: false },
+      { text: "Resize the outer wrapper `<div>` that contains the iframe.",  correct: true  },
+      { text: "Resize both the iframe and its wrapper.",                      correct: false },
+      { text: "You cannot dynamically resize an embedded flipbook.",          correct: false },
     ],
-    explanation:
-      "Reproducing the issue first lets you confirm it is real, gather exact error details, and provide the development team with actionable information.",
+    explanation: "iPaper's docs explicitly state: 'Dynamically resizing the div will work. Do make sure you resize the outer element and not the iframe.'",
   },
+
   {
-    id: 14,
-    section: "SUPPORT",
-    text: "A customer asks why their embedded publication loads slowly for end-users in Australia when their company is based in Denmark. What is the most relevant technical concept to explain?",
+    id: 8, type: "mcq", section: "IFRAME",
+    text: "A WordPress customer says their embedded iPaper flipbook is completely invisible on their page, even though the URL is correct. What is the most likely cause?",
     options: [
-      { text: "Browser compatibility issues.", correct: false },
-      { text: "Network latency and CDN (Content Delivery Network) geography.", correct: true },
-      { text: "JavaScript execution speed.", correct: false },
-      { text: "PDF colour profile encoding.", correct: false },
+      { text: "WordPress only supports HTTPS iframes.",                                                                    correct: false },
+      { text: "WordPress's editor (especially Gutenberg) strips raw `<iframe>` HTML — they need to use a Custom HTML block or allow iframes via a plugin.", correct: true  },
+      { text: "The iframe width must be set in pixels, not percent.",                                                     correct: false },
+      { text: "WordPress does not support iframes at all.",                                                               correct: false },
     ],
-    explanation:
-      "Physical distance between user and server increases latency. A CDN with edge nodes closer to Australia would significantly reduce load times.",
+    explanation: "WordPress sanitises user-submitted HTML and removes `<iframe>` tags by default for security. The customer needs to paste the embed code into a 'Custom HTML' block in the Gutenberg editor.",
   },
+
+  // ── Fix #3 ──────────────────────────────────────────────
   {
-    id: 15,
-    section: "SUPPORT",
-    text: "A customer reports a CORS error in their browser console when trying to fetch data from the iPaper API directly from their front-end JavaScript. What is the correct approach to advise?",
-    options: [
-      { text: "Tell the customer to disable CORS in their browser.", correct: false },
-      { text: "Tell the customer to add `mode: 'no-cors'` to their fetch call.", correct: false },
-      {
-        text: "Advise the customer to make the API call from their own back-end server and proxy the result to the front-end.",
-        correct: true,
-      },
-      { text: "Tell the customer the iPaper API does not exist.", correct: false },
-    ],
-    explanation:
-      "`no-cors` does not solve CORS for readable responses. The correct pattern is a server-side proxy that makes the authenticated API call and forwards the result — CORS only applies to browser-to-server requests.",
+    id: 9, type: "fix", section: "IFRAME",
+    text: "This iframe embeds an iPaper flipbook but video enrichments won't go fullscreen and autoplay is blocked. Add the missing attributes to fix both issues.",
+    lang: "html",
+    brokenCode: `<iframe
+  src="https://viewer.ipaper.io/demo/brochure/"
+  width="100%"
+  height="600"
+  frameborder="0">
+</iframe>`,
+    validate: (code) =>
+      code.includes("allow=") &&
+      code.toLowerCase().includes("fullscreen") &&
+      code.toLowerCase().includes("autoplay") &&
+      code.toLowerCase().includes("allowfullscreen"),
+    fixHint: "Hint: iPaper docs say you need an `allow` attribute with specific values, plus a backwards-compat attribute.",
+    explanation: 'Add `allow="autoplay; fullscreen;"` and the `allowfullscreen` attribute. The `allow` attribute controls the Permissions Policy for features like autoplay and fullscreen inside the iframe.',
   },
+
+  // ── Fix #4 ──────────────────────────────────────────────
+  {
+    id: 10, type: "fix", section: "IFRAME",
+    text: "A customer reports unexpected whitespace around their full-page flipbook embed. The wrapper div is missing the one CSS property that fixes this. Add it.",
+    lang: "html",
+    brokenCode: `<!DOCTYPE html>
+<html style="height: 100%">
+<body style="height: 100%">
+
+  <div style="height: 100%; width: 100%;">
+    <iframe
+      src="https://viewer.ipaper.io/demo/brochure/"
+      scrolling="no"
+      frameborder="0"
+      style="width: 100%; height: 100%"
+      allow="autoplay; fullscreen;"
+      allowfullscreen>
+    </iframe>
+  </div>
+
+</body>
+</html>`,
+    validate: (code) =>
+      code.includes("overflow") && code.includes("hidden"),
+    fixHint: "Hint: iPaper's full-page embed guide says the wrapper div needs a specific overflow setting.",
+    explanation: "Adding `overflow: hidden` to the wrapper div prevents the browser rendering whitespace or scrollbars around the iframe. This is a required step in iPaper's official full-page embed guide.",
+  },
+
+  // ═══════════════════════════════════════════════════════
+  //  iPAPER PLATFORM  (5 MCQ)
+  // ═══════════════════════════════════════════════════════
+
+  {
+    id: 11, type: "mcq", section: "IPAPER",
+    text: "A customer asks why their Google Analytics shows flipbook page-views but they see zero events in their GA dashboard. What is most likely missing?",
+    options: [
+      { text: "Their GA tracking ID is wrong.",                                                                  correct: false },
+      { text: "GA events from iPaper are only tracked when a user interacts — page-views alone don't generate events.", correct: false },
+      { text: "They haven't configured the iPaper GA integration, so no events are being sent.",                 correct: true  },
+      { text: "GA4 doesn't support custom events.",                                                              correct: false },
+    ],
+    explanation: "iPaper sends events (link clicks, searches, video plays, etc.) only when the Google Analytics integration is set up inside iPaper CMS. Page-views may work through other GA tracking already on the customer's site.",
+  },
+
+  {
+    id: 12, type: "mcq", section: "IPAPER",
+    text: "In Google Analytics 4 (GA4), what prefix does iPaper add to all its event names?",
+    options: [
+      { text: '"ga_"',    correct: false },
+      { text: '"ip_"',    correct: false },
+      { text: '"ipf_"',   correct: true  },
+      { text: '"ipaper_"',correct: false },
+    ],
+    explanation: 'GA4 does not collect event categories by default, so iPaper prepends `ipf_` (iPaper Flipbook) to all event names. For example, a search event becomes `ipf_search`.',
+  },
+
+  {
+    id: 13, type: "mcq", section: "IPAPER",
+    text: "A customer wants to share a link that takes visitors directly to page 12 of their flipbook. Which URL is correct?",
+    options: [
+      { text: "`https://catalog.company.com/brochure/?GoToPage=12`",       correct: false },
+      { text: "`https://catalog.company.com/brochure/?Page=12`",           correct: true  },
+      { text: "`https://catalog.company.com/brochure/?page=12`",           correct: false },
+      { text: "`https://catalog.company.com/brochure/#page-12`",           correct: false },
+    ],
+    explanation: "The `Page` query string parameter (capital P) is the supported way to deep-link to a specific page. Linking to a non-existing page will send the user to page 1.",
+  },
+
+  {
+    id: 14, type: "mcq", section: "IPAPER",
+    text: "A customer has a popup frame enrichment on their flipbook. The framed page should close its own popup when a user completes a form. What JavaScript should the framed page run?",
+    options: [
+      { text: "`window.close()`",                                            correct: false },
+      { text: "`parent.close()`",                                            correct: false },
+      { text: "`parent.postMessage('closePopup', '*')`",                     correct: true  },
+      { text: "`document.dispatchEvent(new Event('closePopup'))`",           correct: false },
+    ],
+    explanation: "iPaper listens for a `postMessage` with the value `'closePopup'` (or an object with `command: 'closePopup'`) sent to the parent window. This is the official supported way to close a popup frame from within.",
+  },
+
+  {
+    id: 15, type: "mcq", section: "IPAPER",
+    text: "A customer uses Google Tag Manager (GTM) for tracking AND has also added an Analytics Tracking ID directly in iPaper CMS. What problem will this cause?",
+    options: [
+      { text: "GTM will block all iPaper events.",                                                             correct: false },
+      { text: "Page-views and events will be tracked twice (or more), inflating their analytics data.",        correct: true  },
+      { text: "The iPaper integration will stop working.",                                                     correct: false },
+      { text: "No problem — they work independently and won't interfere.",                                     correct: false },
+    ],
+    explanation: "iPaper's docs warn: if GTM is used to send data to GA, you must NOT also add a direct Analytics Tracking ID in iPaper, as this results in page-views and events being tracked multiple times. Stick to one method.",
+  },
+
 ];
