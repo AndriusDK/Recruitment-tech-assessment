@@ -63,6 +63,7 @@
   const codeEditor    = document.getElementById("code-editor");
   const editorGutter  = document.getElementById("editor-gutter");
   const btnCheckFix   = document.getElementById("btn-check-fix");
+  const btnSkipFix    = document.getElementById("btn-skip-fix");
 
   const navHint   = document.getElementById("nav-hint");
   const btnNext   = document.getElementById("btn-next");
@@ -212,6 +213,7 @@
     btnCheckFix.textContent       = "Check Fix";
     btnCheckFix.className         = "btn btn-check";
     codeEditor.disabled           = false;
+    btnSkipFix.style.display      = "inline-block";
 
     if (q.type === "mcq") {
       if (q.code) {
@@ -274,6 +276,7 @@
     codeEditor.addEventListener("input", updateGutter);
 
     btnCheckFix.onclick = () => checkFix(q);
+    btnSkipFix.onclick  = () => skipFix(q);
   }
 
   function checkFix(q) {
@@ -297,6 +300,16 @@
     sectionAnswers[activeSection].push({ questionId: q.id, section: activeSection, correct, selectedText });
     showHint(q.explanation, correct);
     btnNext.disabled = false;
+    codeEditor.disabled = true;
+    btnSkipFix.style.display = "none";
+  }
+
+  function skipFix(q) {
+    sectionAnswers[activeSection].push({ questionId: q.id, section: activeSection, correct: false, selectedText: "(skipped)" });
+    showHint("Skipped. " + q.explanation, false);
+    btnNext.disabled = false;
+    btnCheckFix.disabled = true;
+    btnSkipFix.style.display = "none";
     codeEditor.disabled = true;
   }
 

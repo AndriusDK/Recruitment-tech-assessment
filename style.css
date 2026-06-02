@@ -296,6 +296,9 @@ h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: 1px; color: var(--text
 .btn-check:disabled { opacity: .5; cursor: default; }
 .btn-check.check-pass { border-color: var(--neon-green); color: var(--neon-green); background: rgba(57,255,20,.08); box-shadow: var(--glow-green); }
 .btn-check.check-fail { border-color: var(--neon-red);   color: var(--neon-red);   background: rgba(255,23,68,.08); }
+.fix-actions { display: flex; align-items: center; gap: .75rem; }
+.btn-skip { padding: .5rem 1rem; border: 1px solid rgba(90,112,128,.4); border-radius: var(--radius); background: transparent; color: var(--text-dim); font-family: var(--font-mono); font-size: .82rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all .2s; width: auto; }
+.btn-skip:hover { border-color: var(--text-dim); color: var(--text); }
 
 /* ── MCQ Options ───────────────────────────────────────────────────────── */
 .options { display: flex; flex-direction: column; gap: .6rem; padding-left: .75rem; }
