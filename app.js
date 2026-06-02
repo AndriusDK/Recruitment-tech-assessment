@@ -210,6 +210,8 @@
     optionsCont.innerHTML         = "";
     btnCheckFix.disabled          = false;
     btnCheckFix.textContent       = "Check Fix";
+    btnCheckFix.className         = "btn btn-check";
+    codeEditor.disabled           = false;
 
     if (q.type === "mcq") {
       if (q.code) {
